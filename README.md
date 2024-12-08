@@ -7,7 +7,7 @@ Install the necessary requirements with `pip`
 
 `source .venv/bin/activate`
 
-`pip3 install --upgrade -r requirements.txt`
+`pip3 install --upgrade pip -r requirements.txt`
 
 ### Usage
 

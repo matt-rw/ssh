@@ -15,6 +15,8 @@ from paramiko import (
 )
 
 
+AUTHORIZED_KEYS_PATH = 'authorized_keys'
+
 logger = getLogger()
 
 
@@ -79,7 +81,7 @@ class SSHServerInterface(ServerInterface):
             if it succeeds.
         :rtype: int
         """
-        return AUTH_SUCCESSFUL
+        return AUTH_FAILED
 
     def check_auth_password(self, username, password):
         """
@@ -138,7 +140,24 @@ class SSHServerInterface(ServerInterface):
             authentication
         :rtype: int
         """
-        return AUTH_SUCCESSFUL
+        if not os.path.exists(AUTHORIZED_KEYS_PATH):
+            logger.info('Authorized keys file not found.')
+            return AUTH_FAILED
+
+        logger.info(
+            "Authenticating '%s' with key: %s",
+            username,
+            key.get_base64()
+        )
+        with open(AUTHORIZED_KEYS_PATH, 'r') as f:
+            authorized_keys = f.read().splitlines()
+        key_base64 = key.get_base64()
+        for auth_key in authorized_keys:
+            if key_base64 in auth_key:
+                logger.info("Authorized key found for '%s'", username)
+                return AUTH_SUCCESSFUL
+
+        return AUTH_FAILED
 
     def check_auth_interactive(self, username, submethods):
         """Begin an interactive challenge, if supported."""
