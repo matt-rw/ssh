@@ -1,4 +1,14 @@
 
+### Requirements
+
+Install the necessary requirements with `pip`
+
+`python3 -m venv .venv`
+
+`source .venv/bin/activate`
+
+`pip3 install --upgrade -r requirements.txt`
+
 ### Usage
 
 Run a server locally on port `22555`
@@ -7,7 +17,7 @@ Run a server locally on port `22555`
 
 Use an SSH client to connect to the server
 
-`$ ssh user@localhost -p 22555`
+`ssh user@localhost -p 22555`
 
 ### Host Keys
 
