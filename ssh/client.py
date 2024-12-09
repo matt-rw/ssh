@@ -1,17 +1,14 @@
 """SSH Client."""
 
 import argparse
-from dataclasses import dataclass
+import os
 
 import paramiko
 from paramiko import SSHClient as Client
 from paramiko.ssh_exception import NoValidConnectionsError
 
 
-# class SSHClientConfig(dataclass):
-    # remote: str = ''
-    # port: int = 0
-    # username: str = ''
+KEY_DIR = 'keys/client'
 
 class SSHClient:
 
@@ -22,24 +19,38 @@ class SSHClient:
         self.ssh = Client()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.transport = None
+        
+        key_path = os.path.join(KEY_DIR, 'id_ecdsa')
+        with open(key_path, 'r') as f:
+            key = f.read()
+        print(key)
+        self.private_key = paramiko.ECDSAKey.from_private_key_file(key_path)
+        self.ssh.load_host_keys(os.path.join(KEY_DIR, 'known_hosts'))
 
     def start(self):
         """Connect to the SSH server."""
         try:
-            self.ssh.connect(self.remote, port=self.port, username=self.username)
+            self.ssh.connect(
+                hostname=self.remote,
+                port=self.port, 
+                username=self.username,
+                pkey=self.private_key
+            )
         except NoValidConnectionsError:
             print('Failed to connect')
             return
         self.transport = self.ssh.get_transport() 
-        channel = self.open_session()
+        channel = self.transport.open_session()
 
+        recv = channel.recv(1024)
+        print(recv.decode('utf-8'))
         while True:
             data = input('Input: ')
-            channel.send('Hello')
-            channel.recv(1024)
+            channel.send(data.encode('utf-8'))
+            recv = channel.recv(1024)
+            print(recv.decode('utf-8'))
 
-
-    def open_session():
+    def open_session(self):
         """Open a new session on the transport."""
         transport.open_session()
 

@@ -17,7 +17,7 @@ from paramiko import (
 
 
 logger = logging.getLogger('ssh')
-AUTHORIZED_KEYS_PATH = 'authorized_keys'
+AUTHORIZED_KEYS_PATH = 'keys/server/authorized_keys'
 
 
 

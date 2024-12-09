@@ -9,6 +9,7 @@ Run a SSH server on a specified address with:
 
 import argparse
 from logging import getLogger
+import os
 import socket
 import threading
 
@@ -20,7 +21,7 @@ from .interface import SSHServerInterface
 from . import logger
 
 MAX_CONNECTIONS = 5
-HOST_KEY = RSAKey.generate(2048)
+KEY_DIR = 'keys/server'
 
 
 class SSHServer():
@@ -30,6 +31,10 @@ class SSHServer():
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.addr = (host, port)
         self.sessions = {}
+
+        self.host_key = paramiko.Ed25519Key.from_private_key_file(
+            os.path.join(KEY_DIR, 'id_ed25519')
+        )
 
     def start(self):
         """
@@ -58,7 +63,7 @@ class SSHServer():
         """
         try:
             transport = paramiko.Transport(client_socket)
-            transport.add_server_key(HOST_KEY)
+            transport.add_server_key(self.host_key)
             
             server_interface = SSHServerInterface()
             transport.start_server(server=server_interface)
@@ -76,7 +81,10 @@ class SSHServer():
             # Channel loop
             while True:
                 data = channel.recv(1024)
-                channel.send(f'Echo: {data.decode()}')
+                # print(data.decode('utf-8'))
+                print(data.decode('utf-8'))
+                # channel.send(bytes(f'Echo: {data.decode()}'))
+                channel.send(data)
 
         except Exception as exc:
             logger.info('%r', exc)
