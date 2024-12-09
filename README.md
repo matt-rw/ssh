@@ -11,17 +11,47 @@ Install the necessary requirements with `pip`
 
 ### Usage
 
+#### Server
+
 Run a server locally on port `22555`
 
-`python3 -m ssh.server localhost 22555`
+`python3 -m ssh.server -a localhost -p 22555`
 
-Use an SSH client to connect to the server
+#### Client
+
+To connect an OpenSSH client to connect to the server
 
 `ssh user@localhost -p 22555`
 
+To connect a paramiko client with the server:
+
+`python3 -m ssh.client -a localhost -p 22555`
+
+### API
+
+```python
+
+from ssh import server
+
+ssh_server = SSHServer('localhost', port=2222)
+ssh_server.start()
+
+```
+
+```python
+
+from ssh import client
+
+ssh_client = SSHClient('localhost', port=2222)
+ssh_client.start()
+
+ssh_client.send(b'data')
+
+````
+
 ### Host Keys
 
-SSH servers use host keys to identify themselves. SSH clients store trusted server public keys in `~/.ssh/knownhosts`. If the server is not a known host, the client will be requested if it wants to add the server's host key before proceeding with authentication.
+SSH servers use host keys to identify themselves. SSH clients store trusted server public keys in `~/.ssh/knownhosts`. If the server is not a known host, the client is asked if it wants to add the server's key before proceeding with authentication.
 
 ### Authorized Keys
 
