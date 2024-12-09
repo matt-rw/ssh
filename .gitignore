@@ -1,5 +1,6 @@
 *.log
-keys/*
+keys/client/*
+keys/server/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
