@@ -28,3 +28,7 @@ SSH servers use host keys to identify themselves. SSH clients store trusted serv
 Authorized keys are public keys that are used to authenticate clients. This can be used instead of password authentication. 
 
 The server receives the client's public key. If it is found in `~/.ssh/authorized_keys`, the server encrypts a challenge message with the public key. If the client can decrypt the message with the corresponding private key, it has proven its identity and is granted access.
+
+To add a client, append the client's public key to the `authorized_keys` file. For example,
+
+`cat id_rsa.pub >> authorized_keys`

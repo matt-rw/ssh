@@ -12,6 +12,7 @@ from logging import getLogger
 import socket
 import threading
 
+import paramiko
 from paramiko import RSAKey
 from paramiko.transport import Transport
 
@@ -43,14 +44,15 @@ class SSHServer():
                 logger.info('Connection from %r', addr)
                 session_t = threading.Thread(
                     target=self.handle_client,
-                    args=(client_socket,),
+                    args=(client_socket, addr),
                     daemon=True
                 )
                 self.sessions[addr] = session_t
+                session_t.start()
         except KeyboardInterrupt:
             logger.info('Exiting server')
 
-    def handle_client(client_socket):
+    def handle_client(self, client_socket, addr):
         """
         Handle an individual SSH client.
         """
@@ -58,19 +60,29 @@ class SSHServer():
             transport = paramiko.Transport(client_socket)
             transport.add_server_key(HOST_KEY)
             
-            server_interface = SSHServerInterfaec()
-            transport.start_server(server=server)
+            server_interface = SSHServerInterface()
+            transport.start_server(server=server_interface)
 
             channel = transport.accept(20)
-            if channel is None:
-                logger.info('No channel request from client')
+            if not transport.is_authenticated():
+                logger.info('Failed to authenticate %r', addr)
                 return
+            elif channel is None:
+                logger.info('No channel request received')
+                return
+
+            channel.send(f'Connected to SSH server on {self.addr}\n')
             
+            # Channel loop
             while True:
                 data = channel.recv(1024)
                 channel.send(f'Echo: {data.decode()}')
+
         except Exception as exc:
             logger.info('%r', exc)
+        finally:
+            logger.info(f'Closing connection with {addr}')
+            client_socket.close()
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 `.Server` is an interface that overrides `.ServerInterface`.
 """
 
-from logging import getLogger
+import os
 
 from paramiko.server import ServerInterface
 from paramiko.common import (
@@ -14,10 +14,11 @@ from paramiko import (
     OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 )
 
+from . import logger
+
 
 AUTHORIZED_KEYS_PATH = 'authorized_keys'
 
-logger = getLogger()
 
 
 class SSHServerInterface(ServerInterface):
@@ -353,8 +354,7 @@ class SSHServerInterface(ServerInterface):
 
             .. versionadded:: 2.3
             """
-            return (None, None)
-
+            return ('SSH Server', 'en-US')
 
 
 
